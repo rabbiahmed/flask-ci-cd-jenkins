@@ -19,7 +19,7 @@ pipeline {
             steps {
                 // In a real project, this would run unit/integration tests
                 echo 'Running simulated tests...'
-                sh 'python -m compileall app.py' // Simple syntax check
+                sh 'python3 -m compileall app.py' // Simple syntax check
             }
         }
 
