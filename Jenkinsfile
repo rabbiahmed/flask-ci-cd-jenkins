@@ -34,13 +34,14 @@ pipeline {
                 script {
                     def WORKSPACE = pwd()
                     def LOG_FILE = "${WORKSPACE}/app.log"
-                    def GUNICORN_BIN = "/var/lib/jenkins/.local/bin/gunicorn" // Use full path for robustness
-                    
-                    // 1. Kill any existing Gunicorn instance running the app
+                    // Use the full explicit path to the installed gunicorn executable
+                    def GUNICORN_BIN = "/var/lib/jenkins/.local/bin/gunicorn" 
+
+                    // 1. Kill any existing Gunicorn instance
                     sh "pkill -f 'gunicorn app:app' || true" 
 
-                    // 2. Using setsid to fully detach the process group
-                    // setsid runs the command in a new session, preventing the TERM signal on job end.
+                    // 2. FINAL Deployment Command: Use setsid with an inline shell execution
+                    // This creates a new session and process group, fully detaching the process.
                     sh "setsid sh -c '${GUNICORN_BIN} --bind 0.0.0.0:5000 app:app > ${LOG_FILE} 2>&1 &' > /dev/null"
                     
                     // Wait briefly for the server to spin up
