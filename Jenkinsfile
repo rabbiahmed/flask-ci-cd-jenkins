@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Clones the code from the specified SCM
-                git 'https://github.com/rabbiahmed/flask-ci-cd-jenkins.git' // Remote Repository
+                git url: 'https://github.com/rabbiahmed/flask-ci-cd-jenkins.git', branch: 'main' // Remote Repository
             }
         }
         
