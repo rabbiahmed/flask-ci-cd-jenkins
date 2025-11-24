@@ -34,14 +34,14 @@ pipeline {
                 script {
                     def WORKSPACE = pwd()
                     def LOG_FILE = "${WORKSPACE}/app.log"
+                    def GUNICORN_BIN = "/var/lib/jenkins/.local/bin/gunicorn" // Use full path for robustness
                     
                     // 1. Kill any existing Gunicorn instance running the app
-                    // Note: We use the Gunicorn command name here
                     sh "pkill -f 'gunicorn app:app' || true" 
 
-                    // 2. Start Gunicorn in the background. Gunicorn is designed to detach reliably.
-                    // The command tells Gunicorn to run the 'app' instance from the 'app.py' file.
-                    sh "gunicorn --bind 0.0.0.0:5000 app:app > ${LOG_FILE} 2>&1 &"
+                    // 2. Using setsid to fully detach the process group
+                    // setsid runs the command in a new session, preventing the TERM signal on job end.
+                    sh "setsid sh -c '${GUNICORN_BIN} --bind 0.0.0.0:5000 app:app > ${LOG_FILE} 2>&1 &' > /dev/null"
                     
                     // Wait briefly for the server to spin up
                     sh 'sleep 5' 
