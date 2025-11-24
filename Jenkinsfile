@@ -35,8 +35,9 @@ pipeline {
                     // 1. Kill any existing instance
                     sh "pkill -f \"${PYTHON3} app.py\" || true" 
 
-                    // 2. Start the new instance using a detached shell command (double forking)
-                    sh "sh -c '${APP_COMMAND} > ${LOG_FILE} 2>&1 &' &"
+                    // 2. The FINAL Robust Start Command: Using setsid to fully detach the process group
+                    // setsid runs the command in a new session, ensuring it survives the Jenkins shell closing.
+                    sh "setsid sh -c '${APP_COMMAND} > ${LOG_FILE} 2>&1 &' > /dev/null"
                     
                     // Wait briefly to allow the application to start
                     sh 'sleep 5' 
