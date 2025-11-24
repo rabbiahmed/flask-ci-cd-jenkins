@@ -29,8 +29,8 @@ pipeline {
                 echo 'Deploying application... 🟢'
                 // This uses the 'nohup' and '&' to run the app in the background, 
                 // preventing the Jenkins job from hanging.
-                sh 'pkill -f "python app.py" || true' // Stop if running
-                sh 'nohup python app.py > app.log 2>&1 &'
+                sh 'pkill -f "python3 app.py" || true' // Stop if running
+                sh 'nohup python3 app.py > app.log 2>&1 &'
                 echo 'Application deployed to port 5000!'
             }
         }
