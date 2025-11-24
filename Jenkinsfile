@@ -25,23 +25,20 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Stop any existing instance, then start the new one in the background
                 echo 'Deploying application... 🟢'
-                
-                // Define variables for clarity and robustness
                 script {
                     def PYTHON3 = '/usr/bin/python3'
-                    def WORKSPACE = pwd() // Gets the current workspace path
+                    def WORKSPACE = pwd()
                     def APP_COMMAND = "${PYTHON3} ${WORKSPACE}/app.py"
+                    def LOG_FILE = "${WORKSPACE}/app.log"
 
-                    // 1. Kill any existing instance using the full command path
+                    // 1. Kill any existing instance
                     sh "pkill -f \"${PYTHON3} app.py\" || true" 
 
-                    // 2. Start the new instance using nohup and full paths
-                    // We run this in the background (&) and discard shell output (> /dev/null 2>&1)
-                    sh "nohup ${APP_COMMAND} > ${WORKSPACE}/app.log 2>&1 &" 
+                    // 2. Start the new instance using a detached shell command (double forking)
+                    sh "sh -c '${APP_COMMAND} > ${LOG_FILE} 2>&1 &' &"
                     
-                    // Wait briefly to allow the application to start before the job ends
+                    // Wait briefly to allow the application to start
                     sh 'sleep 5' 
                 }
 
