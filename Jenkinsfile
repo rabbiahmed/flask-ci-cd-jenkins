@@ -1,6 +1,11 @@
 pipeline {
     agent any // Specifies where the pipeline will run (your Jenkins agent/server)
 
+    // Environment configuration
+    environment {
+        PATH = "${env.PATH}:/var/lib/jenkins/.local/bin"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
