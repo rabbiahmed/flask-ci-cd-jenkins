@@ -27,23 +27,22 @@ pipeline {
             steps {
                 echo 'Deploying application... 🟢'
                 script {
-                    def PYTHON3 = '/usr/bin/python3'
                     def WORKSPACE = pwd()
-                    def APP_COMMAND = "${PYTHON3} ${WORKSPACE}/app.py"
                     def LOG_FILE = "${WORKSPACE}/app.log"
-
-                    // 1. Kill any existing instance
-                    sh "pkill -f \"${PYTHON3} app.py\" || true" 
-
-                    // 2. The FINAL Robust Start Command: Using setsid to fully detach the process group
-                    // setsid runs the command in a new session, ensuring it survives the Jenkins shell closing.
-                    sh "setsid sh -c '${APP_COMMAND} > ${LOG_FILE} 2>&1 &' > /dev/null"
                     
-                    // Wait briefly to allow the application to start
+                    // 1. Kill any existing Gunicorn instance running the app
+                    // Note: We use the Gunicorn command name here
+                    sh "pkill -f 'gunicorn app:app' || true" 
+
+                    // 2. Start Gunicorn in the background. Gunicorn is designed to detach reliably.
+                    // The command tells Gunicorn to run the 'app' instance from the 'app.py' file.
+                    sh "gunicorn --bind 0.0.0.0:5000 app:app > ${LOG_FILE} 2>&1 &"
+                    
+                    // Wait briefly for the server to spin up
                     sh 'sleep 5' 
                 }
 
-                echo 'Application deployed to port 5000!'
+                echo 'Application deployed to port 5000 via Gunicorn!'
             }
         }
     }
