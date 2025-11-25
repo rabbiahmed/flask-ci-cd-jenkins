@@ -37,17 +37,17 @@ pipeline {
                     sh 'sudo /usr/bin/cp flask.service /etc/systemd/system/flask.service' 
 
                     // 2. Reload systemd manager configuration
-                    sh 'sudo systemctl daemon-reload'
+                    sh 'sudo /usr/bin/systemctl daemon-reload'
 
                     // 3. Enable the service (ensures it starts on boot)
-                    sh 'sudo systemctl enable flask.service'
+                    sh 'sudo /usr/bin/systemctl enable flask.service'
 
                     // 4. Restart the service (deploys the new code)
                     // This is the command that runs Gunicorn outside of the Jenkins session.
-                    sh 'sudo systemctl restart flask.service'
+                    sh 'sudo /usr/bin/systemctl restart flask.service'
                     
                     // 5. Check the status (optional, but good for logs)
-                    sh 'sudo systemctl status flask.service'
+                    sh 'sudo /usr/bin/systemctl status flask.service'
                 }
                 echo 'Application deployed to port 5000 and managed by Systemd!'
             }
