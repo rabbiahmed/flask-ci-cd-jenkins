@@ -67,7 +67,4 @@ Finished: SUCCESS
 
 ### 2. Application Status
 
-The application is successfully running on the server's network address.
-
-Status	    Location	                Port	
-Deployed	http://[HOST_IP_ADDRESS]	5000
+The application is successfully running on the server's network address. Access the application URL in a browser: http://[HOST_IP_ADDRESS]:5000
