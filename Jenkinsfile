@@ -29,27 +29,28 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                echo 'Deploying application... 🟢'
-                script {
-                    def WORKSPACE = pwd()
-                    def LOG_FILE = "${WORKSPACE}/app.log"
-                    // Use the full explicit path to the installed gunicorn executable
-                    def GUNICORN_BIN = "/var/lib/jenkins/.local/bin/gunicorn" 
+                    steps {
+                        echo 'Deploying application via Systemd... 🟢'
+                        script {
+                            // 1. Copy the service file into the systemd directory
+                            // The sudo is necessary to write to /etc/systemd/system/
+                            sh 'sudo cp flask.service /etc/systemd/system/flask.service' 
 
-                    // 1. Kill any existing Gunicorn instance
-                    sh "pkill -f 'gunicorn app:app' || true" 
+                            // 2. Reload systemd manager configuration
+                            sh 'sudo systemctl daemon-reload'
 
-                    // 2. FINAL Deployment Command: Use setsid with an inline shell execution
-                    // This creates a new session and process group, fully detaching the process.
-                    sh "setsid sh -c '${GUNICORN_BIN} --bind 0.0.0.0:5000 app:app > ${LOG_FILE} 2>&1 &' > /dev/null"
-                    
-                    // Wait briefly for the server to spin up
-                    sh 'sleep 5' 
+                            // 3. Enable the service (ensures it starts on boot)
+                            sh 'sudo systemctl enable flask.service'
+
+                            // 4. Restart the service (deploys the new code)
+                            // This is the command that runs Gunicorn outside of the Jenkins session.
+                            sh 'sudo systemctl restart flask.service'
+                            
+                            // 5. Check the status (optional, but good for logs)
+                            sh 'sudo systemctl status flask.service'
+                        }
+                        echo 'Application deployed to port 5000 and managed by Systemd!'
+                    }
                 }
-
-                echo 'Application deployed to port 5000 via Gunicorn!'
-            }
-        }
     }
 }

@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn instance for Flask CI/CD App
+After=network.target
+
+[Service]
+User=jenkins
+Group=jenkins
+WorkingDirectory=/var/lib/jenkins/workspace/Flask-CI-CD
+ExecStart=/var/lib/jenkins/.local/bin/gunicorn --bind 0.0.0.0:5000 app:app
+Restart=always
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
